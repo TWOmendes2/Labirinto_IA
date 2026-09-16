@@ -1,46 +1,36 @@
-# Labirinto Solver
+# Labirinto IA v2.0.0
 
-Este projeto implementa um solucionador de labirintos em Java utilizando o algoritmo A* (A-star). Ele também inclui uma representação visual do labirinto e do caminho mais curto encontrado pelo agente através de uma interface gráfica Swing.
+Busca em grade com Java 21, domínio imutável, algoritmos independentes e interface Swing.
+Sem bibliotecas externas. Entrada: S início, E destino, X parede, . livre e 1–9 custo
+de entrar na célula. Movimento ortogonal; custo do início não é cobrado.
 
-## Funcionalidades
+## Compilar e testar
 
-- **Representação do Labirinto:**
-  - O labirinto é representado por uma matriz onde cada célula pode ser:
-    - 'S' para o ponto de início.
-    - 'E' para o ponto de fim.
-    - 'X' para obstáculos.
-    - '0' para espaços vazios por onde o agente pode passar.
+```sh
+javac -encoding UTF-8 -d out src/maze/domain/*.java src/maze/search/*.java src/maze/ui/*.java tests/SearchTest.java LabirintoSolver.java
+java -cp out SearchTest
+java -cp out maze.ui.Main
+```
 
-- **Implementação do Agente:**
-  - O agente é capaz de encontrar o caminho mais curto do ponto de início ('S') ao ponto de fim ('E') utilizando o algoritmo A*.
-  - Ele evita obstáculos ('X') e calcula o caminho baseado na heurística de distância Manhattan.
+No Windows PowerShell use `(Get-ChildItem src,tests -Recurse -Filter *.java).FullName`
+como lista de fontes para javac, pois expansão de glob pode variar.
 
-- **Visualização Gráfica:**
-  - Utiliza Java Swing para representar visualmente o labirinto e o caminho encontrado.
-  - O caminho é destacado em amarelo ('2') dentro do labirinto.
+## Algoritmos e contrato
 
-## Como Usar
+| Busca | Objetivo | Estrutura |
+| --- | --- | --- |
+| BFS | Menor número de passos, ignora pesos na decisão | Fila FIFO |
+| Dijkstra | Menor custo positivo | Fila de prioridade por custo acumulado |
+| A* | Menor custo positivo | Custo + Manhattan (admissível com custos ≥1) |
 
-### Pré-requisitos
+A implementação compartilha a expansão: BFS usa fila O(V+E); Dijkstra e A* usam
+heap com custo O((V+E) log V).
+Estados obsoletos são descartados e caminhos reconstruídos pelos predecessores.
+Sem caminho retorna lista vazia/custo -1. Resultado inclui células expandidas.
 
-- Java Development Kit (JDK) instalado.
+## Testes e evolução
 
-### Execução
-
-1. Clone o repositório:
-
-git clone https://github.com/TWOmendes2/labirinto-solver.git
-cd labirinto-solver
-
-
-2. Compile e execute o código:
-
-javac LabirintoSolver.java
-java LabirintoSolver
-
-
-3. Após executar o programa, a interface gráfica será exibida com o labirinto e o caminho mais curto encontrado.
-
-## Exemplos de Labirintos
-
-O código inclui vários labirintos predefinidos dentro do array `predefinedMazes` na classe `LabirintoSolver`. Cada labirinto é representado por uma matriz de caracteres ('S' para início, 'E' para fim, 'X' para obstáculos, '0' para espaços vazios).
+Validação de entradas, ausência de caminho, vizinhança, grade ponderada e comparação
+A*/Dijkstra em 300 grades reproduzíveis. A grade não é modificada pela busca.
+Interface permite editar a grade e selecionar algoritmo, limitada a 100×100 células.
+A UI não é coberta pelos testes headless. A implementação v1 está preservada no Git.
